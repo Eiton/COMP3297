@@ -9,3 +9,4 @@ pip install Pillow
 ```
 python manage.py runserver
 ```
+Go to http://localhost:8000/uploadImage/

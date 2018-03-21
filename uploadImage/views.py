@@ -10,7 +10,7 @@ import datetime
 
 # Create your views here.
 def index(request):
-    return render(request,'uploadPage.html',{})
+    return render(request,'uploadPage.html',{'members': Member.objects.all()})
 
 def upload_file(request):
     if request.method == 'POST':
@@ -22,7 +22,7 @@ def upload_file(request):
             newImg.time = datetime.datetime.now()
             newImg.numberOfView = 0
             newImg.likes = 0
-            temp=Member.objects.filter(username='Dave')
+            temp=Member.objects.filter(username=request.POST.get("author",'none'))#Member.objects.filter(username='Dave')
             newImg.author=temp[0]
             newImg.save()
             tag=Tag.objects.filter(name=request.POST.get("tag",'none'))
