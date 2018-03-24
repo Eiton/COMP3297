@@ -2,7 +2,8 @@ from django.db import models
 
 # Create your models here.
 class Member(models.Model):
-    username = models.CharField(max_length=30)
+    username = models.CharField(max_length=30, unique=True,null=False)
+    uploadFrequency = models.IntegerField(null=False)
     def __str__(self):
         return self.username
 class Tag(models.Model):
