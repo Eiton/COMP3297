@@ -19,11 +19,6 @@ class Image(models.Model):
     numberOfView= models.IntegerField()
     likes= models.IntegerField()
     imageFile = models.ImageField(upload_to='images/')
+    tags=models.ManyToManyField(Tag)
     def __str__(self):
         return self.title
-class Image_tag(models.Model):
-    image=models.ForeignKey(Image, on_delete=models.CASCADE)
-    tag=models.ForeignKey(Tag, on_delete=models.CASCADE)
-    def __str__(self):
-        return self.image
-    

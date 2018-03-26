@@ -4,7 +4,6 @@ from django.shortcuts import render_to_response
 from uploadImage.models import Image
 from uploadImage.models import Member
 from uploadImage.models import Tag
-from uploadImage.models import Image_tag
 import datetime
 
 TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 3
@@ -38,9 +37,7 @@ def upload_file(request):
                 return HttpResponse("Upload failed: Number of images uploaded exceeds the limit.<br> <a href='./'>back to upload page</a>")
             if imgAuthor.uploadFrequency>=MAXIMUM_UPLOAD_FREQUENCY:
                 return HttpResponse("Upload failed: Number of images uploaded exceeds the daily limit.<br> <a href='./'>back to upload page</a>")
-            imgAuthor.uploadFrequency+=1
-            imgAuthor.save()
-            newImg.save()
+            
             tag=Tag.objects.filter(name=request.POST.get("tag",'none'))
             if not tag:
                 tag = Tag()
@@ -48,9 +45,10 @@ def upload_file(request):
                 tag.save()
             else:
                 tag=tag[0]
-            image_tag=Image_tag()
-            image_tag.image=newImg
-            image_tag.tag=tag
-            image_tag.save()
+            newImg.save()
+            newImg.tags.add(tag)
+            newImg.save()
+            imgAuthor.uploadFrequency+=1
+            imgAuthor.save()
             return HttpResponse("The image is uploaded successfully. <br><img src='"+newImg.imageFile.url+"'><br> <a href='./'>back to upload page</a>")
     return HttpResponse("Upload failed<br> <a href='./'>back to upload page</a>")

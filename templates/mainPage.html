@@ -1,0 +1,29 @@
+<!DOCTYPE html><html><head><title>Upload image</title></head>
+<body>
+Main page<br>
+
+<form action="" method='Get' >
+Search: <input  type='text' name='keyword'><br>
+<input type='submit'></form>
+<a href="uploadImage">upload image</a><br>
+{% if images == '' %}
+no image found
+{% else %}
+<table border="5">
+<tr><th>Image</th><th width='200'>Title</th><th width='200'>description</th><th width='200'>category</th><th width='200'>tag</th><th width='200'>author</th>
+{% for image in images %}
+    <tr><td>
+    <img src='{{ image.imageFile.url }}' height='300' ><br>
+    </td>
+    <td>{{image.title}}</td>
+    <td>{{image.description}}</td>
+    <td>{{image.category}}</td>
+    <td>{% for tag in image.tags.all %}
+                {{tag.name}} 
+            {% endfor %}
+    </td>
+    <td>{{image.author}}</td>
+    </tr>
+{% endfor %}
+{% endif %}
+</body></html>
