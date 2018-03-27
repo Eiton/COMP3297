@@ -10,4 +10,6 @@ def index(request):
         images=tag[0].image_set.all()
     else:
         images=Image.objects.all()
+    if len(images)==0:
+        images=''
     return render(request,'mainPage.html',{'images': images})
