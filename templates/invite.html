@@ -1,0 +1,11 @@
+<!DOCTYPE html><html><head><title>invite new member</title></head>
+<body>
+invite new member<br>
+
+<form action="" method='POST' enctype='multipart/form-data'>
+{% csrf_token %}
+email address: <input  type='text' name='email'><br>
+<input type='submit'>
+</form>
+<br><a href='../'>Back</a>
+</body></html>

@@ -1,20 +1,22 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from uploadImage.models import Image
-from uploadImage.models import Member
-from uploadImage.models import Tag
+from uploadImage.models import Image,Tag
+from mainPage.models import MemberInfo
+from django.contrib.auth.models import User
 import datetime
 
 TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 3
-MAXIMUM_UPLOAD_FREQUENCY = 4
+MAXIMUM_UPLOAD_FREQUENCY = 2
 # Create your views here.
 def index(request):
-    return render(request,'uploadPage.html',{'members': Member.objects.all()})
+    
+    return render(request,'uploadPage.html',{'members':User.objects.exclude(username = 'admin')})
 
 def upload_file(request):
     if request.method == 'POST':
-            imgAuthor=Member.objects.get(username=request.POST.get("author",'none'))
+            imgAuthor=User.objects.get(username=request.POST.get("author",''))
+            authorInfo=MemberInfo.objects.get(user=imgAuthor)
             numImage=len(Image.objects.filter(author=imgAuthor))
             newImg = Image()
             newImg.title = request.POST.get("title",'')
@@ -31,13 +33,13 @@ def upload_file(request):
             newImg.imageFile = request.FILES['image']
             newImg.time = datetime.datetime.now()
             newImg.numberOfView = 0
+            newImg.numberOfDownload = 0
             newImg.likes = 0
             newImg.author=imgAuthor
             if numImage>=TOTAL_NUMBER_OF_AVAILABLE_IMAGE:
                 return HttpResponse("Upload failed: Number of images uploaded exceeds the limit.<br> <a href='./'>back to upload page</a>")
-            if imgAuthor.uploadFrequency>=MAXIMUM_UPLOAD_FREQUENCY:
+            if authorInfo.uploadFrequency>=MAXIMUM_UPLOAD_FREQUENCY:
                 return HttpResponse("Upload failed: Number of images uploaded exceeds the daily limit.<br> <a href='./'>back to upload page</a>")
-            
             tag=Tag.objects.filter(name=request.POST.get("tag",'none'))
             if not tag:
                 tag = Tag()
@@ -48,7 +50,7 @@ def upload_file(request):
             newImg.save()
             newImg.tags.add(tag)
             newImg.save()
-            imgAuthor.uploadFrequency+=1
-            imgAuthor.save()
+            authorInfo.uploadFrequency+=1
+            authorInfo.save()
             return HttpResponse("The image is uploaded successfully. <br><img src='"+newImg.imageFile.url+"'><br> <a href='./'>back to upload page</a>")
     return HttpResponse("Upload failed<br> <a href='./'>back to upload page</a>")

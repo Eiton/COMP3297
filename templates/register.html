@@ -1,0 +1,13 @@
+<!DOCTYPE html><html><head><title>register as a new member</title></head>
+<body>
+register as a new member<br>
+
+<form action="" method='POST' enctype='multipart/form-data'>
+{% csrf_token %}
+invitation code: <input  type='text' name='invitationCode'><br>
+username: <input  type='text' name='username'><br>
+password: <input  type='password' name='password'><br>
+<input type='submit'>
+</form>
+<br><a href='../'>Back</a>
+</body></html>
