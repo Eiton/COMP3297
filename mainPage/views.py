@@ -19,7 +19,15 @@ def index(request):
         images=''
     return render(request,'mainPage.html',{'images': images})
 
+def profile(request):
+    if not request.user.is_authenticated:
+        return HttpResponse('error:please login first<br><a href="../">back</a>')
+    images=Image.objects.filter(author=request.user)
+    return render(request,'profile.html',{'username': request.user.username,'images':images})
+
 def invite(request):
+    if not request.user.is_authenticated:
+        return HttpResponse('error:please login first<br><a href="../">back</a>')
     if request.method == 'POST':
         emailAddress=request.POST.get("email",'')
         if emailAddress != '':

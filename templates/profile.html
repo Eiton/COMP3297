@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><title>Profile</title></head>
+<body>
+{{ username }}<br>
+
+{% if images == '' %}
+no image found
+{% else %}
+<table border="5">
+<tr><th>Image</th><th width='200'>Title</th><th width='200'>description</th><th width='200'>category</th><th width='200'>tag</th><th width='200'>author</th><th width="200">action</th>
+{% for image in images %}
+    <tr><td>
+    <img src='{{ image.imageFile.url }}' height='300' ><br>
+    </td>
+    <td>{{image.title}}</td>
+    <td>{{image.description}}</td>
+    <td>{{image.category}}</td>
+    <td>{% for tag in image.tags.all %}
+                {{tag.name}} 
+            {% endfor %}
+    </td>
+    <td>{{image.author}}</td>
+    <td><a href="">Delete</a></td>
+    </tr>
+{% endfor %}
+{% endif %}
+<a href="../">back</a>
+</body></html>

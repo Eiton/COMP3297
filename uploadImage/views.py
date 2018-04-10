@@ -10,12 +10,15 @@ TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 3
 MAXIMUM_UPLOAD_FREQUENCY = 2
 # Create your views here.
 def index(request):
-    
-    return render(request,'uploadPage.html',{'members':User.objects.exclude(username = 'admin')})
+    if not request.user.is_authenticated:
+        return HttpResponse('error:please login first<br><a href="../">back</a>')
+    return render(request,'uploadPage.html')
 
 def upload_file(request):
+    if not request.user.is_authenticated:
+        return HttpResponse('error:please login first<br><a href="../../">back</a>')
     if request.method == 'POST':
-            imgAuthor=User.objects.get(username=request.POST.get("author",''))
+            imgAuthor=request.user
             authorInfo=MemberInfo.objects.get(user=imgAuthor)
             numImage=len(Image.objects.filter(author=imgAuthor))
             newImg = Image()
