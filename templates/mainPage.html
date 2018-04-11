@@ -1,16 +1,21 @@
 <!DOCTYPE html><html><head><title>imageX</title></head>
 <body>
-Welcome to imageX!<br>
+<h1>Welcome to imageX!</h1><br>
 
 <form action="" method='Get' >
 Search: <input  type='text' name='keyword'><br>
 <input type='submit'></form>
+{% if loggedIn == True %}
 <a href="uploadImage">upload image</a><br>
 <a href="profile">profile</a><br>
-<a href="register">register as a new member</a><br>
 <a href="invite">invite new member</a><br>
-<a href="login">login</a><br>
+<a href="changePassword">change password</a><br>
 <a href="logout">logout</a><br>
+{% else %}
+<a href="register">register as a new member</a><br>
+<a href="login">login</a><br>
+<a href="forgotPassword">forgot password?</a><br>
+{% endif %}
 {% if images == '' %}
 no image found
 {% else %}

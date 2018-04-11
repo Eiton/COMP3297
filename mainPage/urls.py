@@ -10,4 +10,7 @@ urlpatterns = [
 	path('profile', views.profile, name='profile'),  
 	path('invite', views.invite, name='invite'),
 	path('register', views.register, name='register'),
+	path('forgotPassword', views.forgotPassword, name='forgotPassword'),
+	path('resetPassword', views.resetPassword, name='resetPassword'),
+	path('changePassword', views.changePassword, name='changePassword'),
 ]
