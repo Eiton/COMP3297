@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><title>Profile</title></head>
-<body>
+<body onload="opener.location.reload()">
 {{ username }}<br>
 
 {% if images == '' %}
@@ -19,9 +19,10 @@ no image found
             {% endfor %}
     </td>
     <td>{{image.author}}</td>
-    <td><a href="">Delete</a></td>
+    <td><a href="uploadImage/delete/{{ image.pk }}">Delete</a></td>
     </tr>
 {% endfor %}
 {% endif %}
+
 <a href="../">back</a>
 </body></html>

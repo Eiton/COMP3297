@@ -62,3 +62,15 @@ def download(request, pk):
     img.numberOfDownload+=1
     img.save()
     return HttpResponse("<script>window.close()</script>")
+
+def delete(request, pk):
+    img=Image.objects.get(id=pk)
+    img.delete()
+    return HttpResponse("""Image is deleted successfully.<br>
+    <script>
+        function back()
+        {
+            window.location.replace("../../profile");
+        }
+        setTimeout('back()',1500);
+     </script>""")
