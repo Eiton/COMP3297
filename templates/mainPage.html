@@ -3,7 +3,12 @@
 <h1>Welcome to imageX!</h1><br>
 
 <form action="" method='Get' >
-Search: <input  type='text' name='keyword'><br>
+Search<br>
+keyword: <input  type='text' name='keyword'><br>
+Category: 
+<select name="category"><option value=''>Any Category</option><option value='Abstract'>Abstract</option><option value='Aerial'>Aerial</option><option value='Animals'>Animals</option><option value='Architecture'>Architecture</option><option value='Black and White'>Black and White</option><option value='Family'>Family</option><option value='Fashion'>Fashion</option><option value='Fine Art'>Fine Art</option><option value='Food'>Food</option><option value='Journalism'>Journalism</option><option value='Landscape'>Landscape</option><option value='Macro'>Macro</option><option value='Nature'>Nature</option><option value='Night'>Night</option><option value='People'>People</option><option value='Performing Arts'>Performing Arts</option><option value='Sport'>Sport</option><option value='Still Life'>Still Life</option><option value='Street'>Street</option><option value='Travel'>Travel</option></select><br>
+Photographer: <input  type='text' name='photographer'><br>
+
 <input type='submit'></form>
 {% if loggedIn == True %}
 <a href="uploadImage">upload image</a><br>

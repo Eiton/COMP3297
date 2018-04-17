@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from uploadImage.models import Image,Tag
+from uploadImage.models import Image,Tag,Category
 from mainPage.models import InvitationCode,MemberInfo,Token
 from django.shortcuts import redirect
 from django.http import HttpResponse
@@ -12,10 +12,19 @@ def index(request):
     if keyword != '':
         tag=Tag.objects.filter(name=keyword)
         if len(tag)==0:
-            return render(request,'mainPage.html',{'images':  ''})
+            return render(request,'mainPage.html',{'images':  '', 'loggedIn':request.user.is_authenticated})
         images=tag[0].image_set.all()
     else:
         images=Image.objects.all()
+    if request.GET.get("category",'') != '':
+        category=Category.objects.get(name=request.GET.get("category",''))
+        images=Image.objects.filter(category=category)
+    if request.GET.get("photographer",'') !='':
+        try:
+            photographer = User.objects.get(username=request.GET.get("photographer",''))
+            images=images.filter(author=photographer)
+        except User.DoesNotExist:
+            images=[]
     if len(images)==0:
         images=''
     return render(request,'mainPage.html',{'images': images,'loggedIn':request.user.is_authenticated})
@@ -24,6 +33,8 @@ def profile(request):
     if not request.user.is_authenticated:
         return HttpResponse('error:please login first<br><a href="../">back</a>')
     images=Image.objects.filter(author=request.user)
+    if len(images)==0:
+        images=''
     return render(request,'profile.html',{'username': request.user.username,'images':images})
 
 def invite(request):
