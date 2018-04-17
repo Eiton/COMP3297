@@ -57,3 +57,8 @@ def upload_file(request):
             authorInfo.save()
             return HttpResponse("The image is uploaded successfully. <br><img src='"+newImg.imageFile.url+"'><br> <a href='./'>back to upload page</a>")
     return HttpResponse("Upload failed<br> <a href='./'>back to upload page</a>")
+def download(request, pk):
+    img=Image.objects.get(id=pk)
+    img.numberOfDownload+=1
+    img.save()
+    return HttpResponse("<script>window.close()</script>")

@@ -24,6 +24,9 @@ no image found
 {% for image in images %}
     <tr><td>
     <img src='{{ image.imageFile.url }}' height='300' ><br>
+    <form action="" method='Get' >
+            <a href="{{ image.imageFile.url }}" Download="{{ image.title }}" onclick="window.open('uploadImage/download/{{ image.pk }}')" >Download</a>
+    </form>
     </td>
     <td>{{image.title}}</td>
     <td>{{image.description}}</td>
