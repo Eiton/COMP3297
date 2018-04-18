@@ -18,4 +18,4 @@ class Token(models.Model):
     token=models.CharField(max_length=10, unique=True,null=False)
     user=models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
-        return self.username
+        return self.user.username
