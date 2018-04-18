@@ -9,38 +9,54 @@ import datetime
 TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 10
 MAXIMUM_UPLOAD_FREQUENCY = 10
 pretags=[]
-categorys = ['Abstract','Aerial','Animals','Architecture','Black and White','Family',
-             'Fashion','Fine Art','Food','Journalism','Landscape','Macro','Nature',
-             'Night','People','Performing Arts','Sport','Still Life','Street','Travel']
-             
+categorys = [('Abstract','1'),('Aerial','2'),('Animals','3'),('Architecture','4'),
+             ('Black and White','5'),('Family','6'),('Fashion','7'),('Fine Art','8'),
+             ('Food','9'),('Journalism','10'),('Landscape','11'),('Macro','12'),('Nature','13'),
+             ('Night','14'),('People','15'),('Performing Arts','16'),('Sport','17'),
+             ('Still Life','18'),('Street','19'),('Travel','20')]
 def index(request):
     pretags.clear()
     if not request.user.is_authenticated:
         return HttpResponse('error:please login first<br><a href="../">back</a>')
-    return render(request,'uploadPage.html')
-
+    return render(request,'uploadPage.html',{'category_':categorys})
+    
 def upload_file(request):
     if not request.user.is_authenticated:
         return HttpResponse('error:please login first<br><a href="../../">back</a>')
     
     title=request.POST.get("title",'')
     description=request.POST.get("description",'')
+    id_=request.POST.get('category')
+    categorys_=list(categorys)
+    for category,id in categorys:
+        if id_ == id:
+          categorys_.remove((category,id))
+          categorys_.insert(0,(category,id_))
+          break
     if request.POST.get("Add"):
         if len(pretags) < 10:
             pretag=request.POST.get("tag")
             if pretag =='':
-              return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'You do not type anything!','title':title,'description':description})
+              return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'You do not type anything!','category_':categorys_,'title':title,'description':description})
             pretags.append(pretag);
-            return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'','title':title,'description':description})
+            return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'','category_':categorys_,'title':title,'description':description})
         else:
-            return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'You reach the maxiumum numbers of tags.','title':title,'description':description})
+            return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'You reach the maxiumum numbers of tags.','category_':categorys_,'title':title,'description':description})
+    
     for pretag in pretags:
         if request.POST.get(pretag):
             pretags.remove(pretag);
-            return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'','title':title,'description':description})
+            return render(request,'uploadPage.html',{'pretags': pretags,'errormsg':'','category_':categorys_,'title':title,'description':description})
+            
     if request.method == 'POST':
             imgAuthor=request.user
-            authorInfo=MemberInfo.objects.get(user=imgAuthor)
+            try:
+                authorInfo=MemberInfo.objects.get(user=imgAuthor)
+            except MemberInfo.DoesNotExist:
+                authorInfo=MemberInfo()
+                authorInfo.user=request.user
+                authorInfo.uploadFrequency=0
+                authorInfo.save()
             numImage=len(Image.objects.filter(author=imgAuthor))
             newImg = Image()
             newImg.title = request.POST.get("title",'')
@@ -49,7 +65,10 @@ def upload_file(request):
             newImg.description = request.POST.get("description",'')
             if request.POST["description"]=='':
                 return HttpResponse("Upload failed: Please specify the description<br><a href='./'>back to upload page</a>")
-            newImg.category=Category.objects.get(name=request.POST.get("category",''))
+            for category,id in categorys:
+                if id_==id:
+                  category_=category
+            newImg.category=Category.objects.get(name=category_)
             if request.POST.get("image",'none')=='':
                 return HttpResponse("Upload failed: no image is selected<br><a href='./'>back to upload page</a>")
             newImg.imageFile = request.FILES['image']

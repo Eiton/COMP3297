@@ -12,8 +12,9 @@ def index(request):
     if keyword != '':
         tag=Tag.objects.filter(name=keyword)
         if len(tag)==0:
-            return render(request,'mainPage.html',{'images':  '', 'loggedIn':request.user.is_authenticated})
-        images=tag[0].image_set.all()
+            images=[]
+        else:
+            images=tag[0].image_set.all()
     else:
         images=Image.objects.all()
     if request.GET.get("category",'') != '':
@@ -26,7 +27,9 @@ def index(request):
         except User.DoesNotExist:
             images=[]
     if len(images)==0:
-        images=''
+        return render(request,'mainPage.html',{'images':  '', 'loggedIn':request.user.is_authenticated})
+    images_ = reversed(list(images))
+    images= images_
     return render(request,'mainPage.html',{'images': images,'loggedIn':request.user.is_authenticated})
 
 def profile(request):
