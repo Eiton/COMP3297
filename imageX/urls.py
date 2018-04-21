@@ -20,8 +20,7 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-	path('', include('mainPage.urls')),
-	path('uploadImage/', include('uploadImage.urls')),
+	path('', include('mainApp.urls')),
     path('admin/', admin.site.urls),
 ]  
 

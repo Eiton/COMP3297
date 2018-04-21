@@ -1,7 +1,7 @@
 <!DOCTYPE html><html><head><title>Upload image</title></head>
 <body>
-<h1>Upload an image</h1><br>
-<form action="upload" method='POST' enctype='multipart/form-data'>
+<h2>Upload an image</h2><br>
+<form action="" method='POST' enctype='multipart/form-data'>
 {% csrf_token %}
 Title: <input type='text' name='title'><br>
 Description:<input type='text' name='description'><br>
@@ -9,5 +9,5 @@ Category:<select name='category'><option value=''>Select a category</option><opt
 Tag:<input type='text' name='tags'><br>
 Image file: <input name='image' type='file' accept='.jpg'><br>
 <input type='submit' value = "upload"></form><br>
-<a href='../'>Back to Main Page</a>
+<a href="{% url 'index' %}">Back to Main Page</a>
 </body></html>

@@ -14,15 +14,15 @@ Photographer: <input  type='text' name='photographer'><br>
 order by:  <input type="radio" name="order" value="popularity">popularity <input type="radio" name="order" value = "time"> upload time <br>
 <input type='submit' value = "search"></form>
 {% if user.is_authenticated == True %}
-<a href="uploadImage">upload image</a><br>
-<a href="profile/{{ user.username }}">profile</a><br>
-<a href="invite">invite new member</a><br>
-<a href="changePassword">change password</a><br>
-<a href="logout">logout</a><br>
+<a href="{% url 'uploadPage' %}">upload image</a><br>
+<a href="{% url 'profile' username=user %}">profile</a><br>
+<a href="{% url 'invite' %}">invite new member</a><br>
+<a href="{% url 'changePassword' %}">change password</a><br>
+<a href="{% url 'logout' %}">logout</a><br>
 {% else %}
-<a href="register">register as a new member</a><br>
-<a href="login">login</a><br>
-<a href="forgotPassword">forgot password?</a><br>
+<a href="{% url 'register' %}">register as a new member</a><br>
+<a href="{% url 'login' %}">login</a><br>
+<a href="{% url 'forgotPassword' %}">forgot password?</a><br>
 {% endif %}
 {% if images == '' %}
 no image found
@@ -57,7 +57,7 @@ no image found
             <a href="{% url 'deleteImage' pk=image.pk %}" onclick="return confirm('Are you sure to delete the image?')">Delete</a>
         {% endif %}
     </td>
-        <td><a href="profile/{{image.author}}">{{image.author.memberInfo.displayname}}</a></td>
+        <td><a href="{% url 'profile' username=image.author %}">{{image.author.memberInfo.displayname}}</a></td>
     </tr>
 {% endfor %}
 </table>

@@ -1,9 +1,0 @@
-<!DOCTYPE html><html><head><title>Delete image</title></head>
-Are you sure to delete this image?<br>
-<img src='{{ image.imageFile.url }}' height='300' ><br>
-<form action="" method='POST' enctype='multipart/form-data'>
-{% csrf_token %}
-<input type='submit' name = 'Confirm' value='Yes'><input type='submit' name = 'Confirm' value='No'><br>
-</form>
-
-</body></html>

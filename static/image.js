@@ -1,7 +1,7 @@
 function downloadImage(pk) {    
     $.ajax({
             type: "GET",
-            url:'/uploadImage/download/'+pk, 
+            url:'/download/'+pk, 
         })
         .done(function(response) {
             $('#image_'+pk).replaceWith(response);
@@ -10,7 +10,7 @@ function downloadImage(pk) {
 function like(pk) {
     $.ajax({
             type: "GET",
-            url:'/uploadImage/like/'+pk, 
+            url:'/like/'+pk, 
         })
         .done(function(response) {
             $('#image_'+pk).replaceWith(response);

@@ -1,6 +1,6 @@
-<!DOCTYPE html><html><head><title>register as a new member</title></head>
+<!DOCTYPE html><html><head><title>Register as a new member</title></head>
 <body>
-register as a new member<br>
+<h2>Register as a new member</h2><br>
 
 <form action="" method='POST' enctype='multipart/form-data'>
 {% csrf_token %}
@@ -9,5 +9,5 @@ username: <input  type='text' name='username'><br>
 password: <input  type='password' name='password'><br>
 <input type='submit'>
 </form>
-<br><a href='../'>Back</a>
+<br><a href="{% url 'index' %}">Back</a>
 </body></html>

@@ -3,7 +3,7 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
 <script type="text/javascript" src="{% static 'image.js' %}"></script>
 <body>
-<h1>Profile of {{ member.memberInfo.displayname }}</h1>
+<h2>Profile of {{ member.memberInfo.displayname }}</h2>
 {% if user == member %}
     <form method="POST" action="" enctype='multipart/form-data' id="changeProfile">
         {% csrf_token %}
@@ -56,6 +56,6 @@ no image found<br>
 </table>
 {% endif %}
 
-<a href="../">back</a>
+<a href="{% url 'index' %}">back</a>
 </body>
 </html>
