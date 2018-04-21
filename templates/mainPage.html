@@ -1,18 +1,21 @@
 <!DOCTYPE html><html><head><title>imageX</title></head>
+{% load static %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'image.js' %}"></script>
 <body>
 <h1>Welcome to imageX!</h1><br>
 
 <form action="" method='Get' >
-Search<br>
-keyword: <input  type='text' name='keyword'><br>
+Search for images<br>
+Tags: <input  type='text' name='keyword'><br>
 Category: 
 <select name="category"><option value=''>Any Category</option><option value='Abstract'>Abstract</option><option value='Aerial'>Aerial</option><option value='Animals'>Animals</option><option value='Architecture'>Architecture</option><option value='Black and White'>Black and White</option><option value='Family'>Family</option><option value='Fashion'>Fashion</option><option value='Fine Art'>Fine Art</option><option value='Food'>Food</option><option value='Journalism'>Journalism</option><option value='Landscape'>Landscape</option><option value='Macro'>Macro</option><option value='Nature'>Nature</option><option value='Night'>Night</option><option value='People'>People</option><option value='Performing Arts'>Performing Arts</option><option value='Sport'>Sport</option><option value='Still Life'>Still Life</option><option value='Street'>Street</option><option value='Travel'>Travel</option></select><br>
 Photographer: <input  type='text' name='photographer'><br>
-
-<input type='submit'></form>
-{% if loggedIn == True %}
+order by:  <input type="radio" name="order" value="popularity">popularity <input type="radio" name="order" value = "time"> upload time <br>
+<input type='submit' value = "search"></form>
+{% if user.is_authenticated == True %}
 <a href="uploadImage">upload image</a><br>
-<a href="profile">profile</a><br>
+<a href="profile/{{ user.username }}">profile</a><br>
 <a href="invite">invite new member</a><br>
 <a href="changePassword">change password</a><br>
 <a href="logout">logout</a><br>
@@ -25,13 +28,10 @@ Photographer: <input  type='text' name='photographer'><br>
 no image found
 {% else %}
 <table border="5">
-<tr><th>Image</th><th width='200'>Title</th><th width='200'>description</th><th width='200'>category</th><th width='200'>tag</th><th width='200'>author</th>
-{% for image in images %}
-    <tr><td>
+<tr><th>Image</th><th width='200'>Title</th><th width='200'>description</th><th width='200'>category</th><th width='200'>tag</th><th width='200'>statistics</th><th width='200'>action</th><th width='200'>photographer</th></tr>
+{% for image, status in images %}
+    <tr id="image_{{ image.pk }}"><td>
     <img src='{{ image.imageFile.url }}' height='300' ><br>
-    <form action="" method='Get' >
-            <a href="{{ image.imageFile.url }}" Download="{{ image.title }}" onclick="window.open('uploadImage/download/{{ image.pk }}')" >Download</a>
-    </form>
     </td>
     <td>{{image.title}}</td>
     <td>{{image.description}}</td>
@@ -40,8 +40,28 @@ no image found
                 {{tag.name}} 
             {% endfor %}
     </td>
-    <td>{{image.author}}</td>
+    <td>
+        {{image.likes.count}} likes<br>
+        {{image.numberOfDownload}} downloads<br>
+    </td>
+    <td>
+        {% if user.is_authenticated == False or status == 0 %}
+        
+        {% elif status == 1 %}
+            <input type="button" id="likeButton" onclick="like({{ image.pk }});" value="Unlike"></input><br>
+        {% else %}
+            <input type="button" id="likeButton" onclick="like({{ image.pk }});" value="Like"></input><br>
+        {% endif %}
+        <a href="{{ image.imageFile.url }}" Download="{{ image.title }}" onclick="downloadImage({{ image.pk }});" >Download</a><br>
+        {% if user == image.author %}
+            <a href="{% url 'deleteImage' pk=image.pk %}" onclick="return confirm('Are you sure to delete the image?')">Delete</a>
+        {% endif %}
+    </td>
+        <td><a href="profile/{{image.author}}">{{image.author.memberInfo.displayname}}</a></td>
     </tr>
 {% endfor %}
+</table>
 {% endif %}
-</body></html>
+</body>
+</script>
+</html>

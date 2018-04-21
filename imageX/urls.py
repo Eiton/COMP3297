@@ -23,7 +23,7 @@ urlpatterns = [
 	path('', include('mainPage.urls')),
 	path('uploadImage/', include('uploadImage.urls')),
     path('admin/', admin.site.urls),
-] 
+]  
 
 
 urlpatterns += staticfiles_urlpatterns()

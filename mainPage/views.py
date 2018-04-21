@@ -1,25 +1,26 @@
 from django.shortcuts import render
-from uploadImage.models import Image,Tag,Category
+from uploadImage.models import Image,Tag
 from mainPage.models import InvitationCode,MemberInfo,Token
 from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
+from django.db.models import Count
 import logging
 
+TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 10
+MAXIMUM_UPLOAD_FREQUENCY = 10
+MAXIMUM_NUMBER_OF_TAGS = 10
+
 def index(request):
-    keyword=request.GET.get("keyword",'')
-    if keyword != '':
-        tag=Tag.objects.filter(name=keyword)
-        if len(tag)==0:
-            images=[]
-        else:
-            images=tag[0].image_set.all()
+    keywords=request.GET.get("keyword",'').split()
+    if len(keywords):
+        tags=Tag.objects.filter(name__in=keywords)
+        images=Image.objects.filter(tags__in=tags).annotate(count=Count('id'))
     else:
-        images=Image.objects.all()
+        images=Image.objects.all().annotate(count=Count('id'))
     if request.GET.get("category",'') != '':
-        category=Category.objects.get(name=request.GET.get("category",''))
-        images=Image.objects.filter(category=category)
+        images=images.filter(category=request.GET.get("category",''))
     if request.GET.get("photographer",'') !='':
         try:
             photographer = User.objects.get(username=request.GET.get("photographer",''))
@@ -27,18 +28,41 @@ def index(request):
         except User.DoesNotExist:
             images=[]
     if len(images)==0:
-        return render(request,'mainPage.html',{'images':  '', 'loggedIn':request.user.is_authenticated})
-    images_ = reversed(list(images))
-    images= images_
-    return render(request,'mainPage.html',{'images': images,'loggedIn':request.user.is_authenticated})
+        return render(request,'mainPage.html',{'images':  '', 'user':request.user})
+    if request.GET.get("order",'')=='time':
+        images_ = images.order_by('count','time','popularity').reverse()
+    else:
+        images_= images.order_by('count','popularity','time').reverse()
+    images = []
+    for image in images_:
+        if image.author==request.user or not request.user.is_authenticated:
+            images.append([image,0])
+        elif len(image.likes.filter(pk=request.user.pk))>0:
+            images.append([image,1])
+        else:
+            images.append([image,2])
+    return render(request,'mainPage.html',{'images': images,'user':request.user})
 
-def profile(request):
-    if not request.user.is_authenticated:
-        return HttpResponse('error:please login first<br><a href="../">back</a>')
-    images=Image.objects.filter(author=request.user)
+def profile(request,username):
+    if request.method == 'POST':
+        request.user.memberInfo.displayname=request.POST.get("displayname",'')
+        request.user.memberInfo.selfDescription=request.POST.get("selfDescription",'')
+        request.user.memberInfo.save()
+        request.user.email=request.POST.get("contactAddress",'')
+        request.user.save()
+    member = User.objects.get(username=username)
+    images=Image.objects.filter(author=member)
     if len(images)==0:
-        images=''
-    return render(request,'profile.html',{'username': request.user.username,'images':images})
+        return render(request,'profile.html',{'user':request.user,'member': member,'images':""})
+    ret=[]
+    for image in images:
+        if image.author==request.user or not request.user.is_authenticated:
+            ret.append([image,0])
+        elif len(image.likes.filter(pk=request.user.pk))>0:
+            ret.append([image,1])
+        else:
+            ret.append([image,2])
+    return render(request,'profile.html',{'user':request.user,'member': member,'images':ret})
 
 def invite(request):
     if not request.user.is_authenticated:
@@ -77,6 +101,8 @@ def register(request):
         user = User.objects.create_user(userName, invitation.email, pwd)
         member=MemberInfo()
         member.user=user
+        member.displayname=userName
+        member.selfDescription=""
         member.save()
         invitation.delete()
         return HttpResponse("registered successfully, welcome to imageX!<br><a href='../'>back to main page</a>")
@@ -119,6 +145,7 @@ def resetPassword(request):
         token.delete()
         return HttpResponse("reset successfully<br><a href='../'>back to main page</a>")
     return render(request,'resetPassword.html')
+    
 def changePassword(request):
     if request.method == 'POST':
         if request.POST.get("currentPassword",'')=='':
@@ -135,3 +162,4 @@ def changePassword(request):
         request.user.save()
         return HttpResponse("reset successfully<br><a href='../'>back to main page</a>")
     return render(request,'changePassword.html')
+    

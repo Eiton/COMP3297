@@ -1,0 +1,29 @@
+    <tr id="image_{{ image.pk }}"><td>
+    <img src='{{ image.imageFile.url }}' height='300' ><br>
+    </td>
+    <td>{{image.title}}</td>
+    <td>{{image.description}}</td>
+    <td>{{image.category}}</td>
+    <td>{% for tag in image.tags.all %}
+                {{tag.name}} 
+            {% endfor %}
+    </td>
+    <td>
+        {{image.likes.count}} likes<br>
+        {{image.numberOfDownload}} downloads<br>
+    </td>
+    <td>
+        {% if user.is_authenticated == False or status == 0 %}
+        
+        {% elif status == 1 %}
+            <input type="button" id="likeButton" onclick="like({{ image.pk }});" value="Unlike"></input><br>
+        {% else %}
+            <input type="button" id="likeButton" onclick="like({{ image.pk }});" value="Like"></input><br>
+        {% endif %}
+        <a href="{{ image.imageFile.url }}" Download="{{ image.title }}" onclick="post('uploadImage/download/{{ image.pk }}')" >Download</a><br>
+        {% if user == image.author %}
+            <a href="{% url 'deleteImage' pk=image.pk %}" onclick="return confirm('Are you sure to delete the image?')">Delete</a>
+        {% endif %}
+    </td>
+    <td><a href="{% url 'profile' username=image.author %}">{{image.author.memberInfo.displayname}}</a></td>
+    </tr>

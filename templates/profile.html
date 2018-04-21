@@ -1,14 +1,29 @@
 <!DOCTYPE html><html><head><title>Profile</title></head>
-<body onload="opener.location.reload()">
-{{ username }}<br>
-
+{% load static %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'image.js' %}"></script>
+<body>
+<h1>Profile of {{ member.memberInfo.displayname }}</h1>
+{% if user == member %}
+    <form method="POST" action="" enctype='multipart/form-data' id="changeProfile">
+        {% csrf_token %}
+        Display name: <br><input type='text' name='displayname' value={{member.memberInfo.displayname }}><br>
+        Self description: <br><textarea rows="4" cols="50" name="selfDescription" form="changeProfile">{{member.memberInfo.selfDescription}}</textarea><br>
+        contact address: <input type='text' name='contactAddress' value={{member.email}}><br>
+        <input type="submit" value = "change profile information">
+    </form>
+{% else %}
+    <p>{{ member.memberInfo.selfDescription }}</p>
+{% endif %}
+<br>
+Images of {{ member.memberInfo.displayname }}<br>
 {% if images == '' %}
 no image found<br>
 {% else %}
 <table border="5">
-<tr><th>Image</th><th width='200'>Title</th><th width='200'>description</th><th width='200'>category</th><th width='200'>tag</th><th width='200'>author</th><th width="200">action</th>
-{% for image in images %}
-    <tr><td>
+<tr><th>Image</th><th width='200'>Title</th><th width='200'>description</th><th width='200'>category</th><th width='200'>tag</th><th width='200'>statistics</th><th width='200'>action</th><th width='200'>photographer</th></tr>
+{% for image, status in images %}
+    <tr id="image_{{ image.pk }}"><td>
     <img src='{{ image.imageFile.url }}' height='300' ><br>
     </td>
     <td>{{image.title}}</td>
@@ -18,11 +33,29 @@ no image found<br>
                 {{tag.name}} 
             {% endfor %}
     </td>
-    <td>{{image.author}}</td>
-    <td><a href="uploadImage/delete/{{ image.pk }}">Delete</a></td>
+    <td>
+        {{image.likes.count}} likes<br>
+        {{image.numberOfDownload}} downloads<br>
+    </td>
+    <td>
+        {% if user.is_authenticated == False or status == 0 %}
+        
+        {% elif status == 1 %}
+            <input type="button" id="likeButton" onclick="like({{ image.pk }});" value="Unlike"></input><br>
+        {% else %}
+            <input type="button" id="likeButton" onclick="like({{ image.pk }});" value="Like"></input><br>
+        {% endif %}
+        <a href="{{ image.imageFile.url }}" Download="{{ image.title }}" onclick="downloadImage({{ image.pk }});" >Download</a><br>
+        {% if user == image.author %}
+            <a href="{% url 'deleteImage' pk=image.pk %}" onclick="return confirm('Are you sure to delete the image?')">Delete</a>
+        {% endif %}
+    </td>
+    <td><a href="{% url 'profile' username=image.author %}">{{image.author.memberInfo.displayname}}</a></td>
     </tr>
 {% endfor %}
+</table>
 {% endif %}
 
 <a href="../">back</a>
-</body></html>
+</body>
+</html>
