@@ -1,4 +1,5 @@
 <!DOCTYPE html><html><head><title>Upload image</title></head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
 <body>
 <h2>Upload an image</h2><br>
 <form action="" method='POST' enctype='multipart/form-data'>
@@ -7,7 +8,28 @@ Title: <input type='text' name='title'><br>
 Description:<input type='text' name='description'><br>
 Category:<select name='category'><option value=''>Select a category</option><option value='Abstract'>Abstract</option><option value='Aerial'>Aerial</option><option value='Animals'>Animals</option><option value='Architecture'>Architecture</option><option value='Black and White'>Black and White</option><option value='Family'>Family</option><option value='Fashion'>Fashion</option><option value='Fine Art'>Fine Art</option><option value='Food'>Food</option><option value='Journalism'>Journalism</option><option value='Landscape'>Landscape</option><option value='Macro'>Macro</option><option value='Nature'>Nature</option><option value='Night'>Night</option><option value='People'>People</option><option value='Performing Arts'>Performing Arts</option><option value='Sport'>Sport</option><option value='Still Life'>Still Life</option><option value='Street'>Street</option><option value='Travel'>Travel</option></select><br>
 Tag:<input type='text' name='tags'><br>
-Image file: <input name='image' type='file' accept='.jpg'><br>
+Image file: <input name='image' id="imageInput" type='file' accept='.jpg'><br>
+preview: <img id="blah" height="300" src="#" /><br>
 <input type='submit' value = "upload"></form><br>
 <a href="{% url 'index' %}">Back to Main Page</a>
-</body></html>
+</body>
+<script>
+//Function copied from stackoverflow
+function readURL(input) {
+
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      $('#blah').attr('src', e.target.result);
+    }
+
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+$("#imageInput").change(function() {
+  readURL(this);
+});
+</script>
+</html>

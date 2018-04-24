@@ -8,14 +8,14 @@ from django.db.models import Count
 import logging
 import datetime
 
-TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 10
-MAXIMUM_UPLOAD_FREQUENCY = 10
+TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 3
+MAXIMUM_UPLOAD_FREQUENCY = 4
 MAXIMUM_NUMBER_OF_TAGS = 10
 scriptBack="""
         <script>
             function back()
             {
-                window.history.back();
+                window.location=document.referrer;
             }
             setTimeout('back()',1500);
          </script>"""
@@ -244,7 +244,7 @@ def uploadImage(request):
                 else:
                     newImg.tags.add(tag[0])
             newImg.save()
-            return HttpResponse("The image is uploaded successfully. <br><img src='"+newImg.imageFile.url+"'><br> <a href=''>upload another image</a><br><a href='../'>back to main page</a><br>")
+            return HttpResponse("The image is uploaded successfully. <br><a href=''>upload another image</a><br><a href='../'>back to main page</a><br>")
     return HttpResponse("Upload failed<br>"+scriptBack)
     
 def delete(request, pk):
@@ -257,7 +257,7 @@ def delete(request, pk):
     if img.author!=request.user:
         return HttpResponse('error:You are not the uploader of the image!<br>'+scriptBack)
     img.delete()
-    return HttpResponse("Image is deleted successfully.<br>+scriptBack")
+    return HttpResponse("Image is deleted successfully.<br>"+scriptBack)
 
 def download(request, pk):
     image=Image.objects.get(id=pk)
