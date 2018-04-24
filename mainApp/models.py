@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 # Create your models here.
 class MemberInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='memberInfo')
-    uploadFrequency = models.IntegerField(default=0)
     displayname = models.CharField(max_length=30, default="")
     selfDescription = models.CharField(max_length=300, default="",blank=True)
     def __str__(self):
