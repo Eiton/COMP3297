@@ -1,7 +1,6 @@
-<!DOCTYPE html><html><head><title>Upload image</title></head>
+<!DOCTYPE html><html><head><title>{{title}}</title></head>
 {% load static %}
 <link rel="stylesheet" href="{% static 'style.css' %}" type="text/css" media="screen, projection, tv" />
-
 <body>
 <div id="wrapper">
   <div class="title">
@@ -39,7 +38,7 @@
         {% else %}
             <li><a href="{% url 'index' %}" >Browse images</a></li>
             <li><a href="{% url 'register' %}">Register as a new member</a></li>
-            <li><a href="{% url 'login' %}"  class="active">Login</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
             <li class="last"><a href="{% url 'forgotPassword' %}">Forgot password?</a></li>
         {% endif %}
       </ul>
@@ -49,12 +48,8 @@
       <div class="box">
         <div class="box-top"></div>
         <div class="box-in">
-            <h2>Login</h2><br>
-            <form method="post">
-            {% csrf_token %}
-                {{ form.as_p }}
-                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<button type="submit" class="btn btn-primary">Login</button>
-            </form>
+            <h2>{{title}}</h2>
+            <p>{{message}}</p>
         </div>
       </div>
       <div class="box-bottom">
@@ -66,4 +61,17 @@
   </div>
 </div>
 </body>
+</html>
+</body>
+<script>
+    function redir()
+        {
+        {% if jump == 'main' %}
+            window.location = '{% url 'index' %}'
+        {% else %}
+            window.location=document.referrer;
+        {% endif %}
+        }
+        setTimeout('redir()',1500);
+</script>
 </html>

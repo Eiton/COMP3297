@@ -11,14 +11,7 @@ import datetime
 TOTAL_NUMBER_OF_AVAILABLE_IMAGE = 3
 MAXIMUM_UPLOAD_FREQUENCY = 4
 MAXIMUM_NUMBER_OF_TAGS = 10
-scriptBack="""
-        <script>
-            function back()
-            {
-                window.location=document.referrer;
-            }
-            setTimeout('back()',1500);
-         </script>"""
+
 
 def index(request):
     keywords=request.GET.get("keyword",'').split()
@@ -56,8 +49,9 @@ def profile(request,username):
         request.user.memberInfo.save()
         request.user.email=request.POST.get("contactAddress",'')
         request.user.save()
+        return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'The profile information is changed successfully'})
     member = User.objects.get(username=username)
-    images=Image.objects.filter(author=member)
+    images=Image.objects.filter(author=member).order_by('time').reverse()
     if len(images)==0:
         return render(request,'profile.html',{'user':request.user,'member': member,'images':""})
     ret=[]
@@ -72,11 +66,11 @@ def profile(request,username):
 
 def invite(request):
     if not request.user.is_authenticated:
-        return HttpResponse('error:please login first<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please login first!'})
     if request.method == 'POST':
         emailAddress=request.POST.get("email",'')
         if emailAddress == '':
-            return HttpResponse("error: Please specify the email address!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please specify the email address!'})
         else:
             randomInvitationCode = get_random_string(length=10)
             while len(Invitation.objects.filter(invitationCode=randomInvitationCode))>0:
@@ -88,22 +82,23 @@ def invite(request):
             logger = logging.getLogger('invitationMail')
             emailMessage="To: "+emailAddress+"\n"+"Dear photographer,\n"+"Go to http://localhost:8000/, fill in the invitation code "+randomInvitationCode+" and become a member of imageX!\n"+"imageX team" 
             logger.info(emailMessage)
-            return HttpResponse("An invitation email will be sent to "+emailAddress+".<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'An invitation email will be sent to '+emailAddress+'.'})
     return render(request,'invite.html')
 
 def register(request):
     if request.method == 'POST':
         invitation=Invitation.objects.filter(invitationCode=request.POST.get("invitationCode",''))
         if len(invitation)==0:
-            return HttpResponse("error: Invalid invitation code!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Invalid invitation code!'})
         userName=request.POST.get("username",'')
         if userName=='':
-            return HttpResponse("error: Please enter a username!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please enter a username!'})
+            
         if len(User.objects.filter(username=userName))>0:
-            return HttpResponse("error: Username already exists!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Username already exists!'})
         pwd=request.POST.get("password",'')
         if pwd=='':
-            return HttpResponse("error: Please enter a password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please enter a password!'})
         user = User.objects.create_user(userName, invitation[0].email, pwd)
         member=MemberInfo()
         member.user=user
@@ -111,14 +106,7 @@ def register(request):
         member.selfDescription=""
         member.save()
         invitation[0].delete()
-        return HttpResponse("registered successfully, welcome to imageX!<br>"+"""
-        <script>
-            function redir()
-            {
-                window.location='../';
-            }
-            setTimeout('redir()',1500);
-         </script>""")
+        return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'Registered successfully, welcome to imageX!','jump':'main'})
     return render(request,'register.html')
 
 def forgotPassword(request):
@@ -126,7 +114,7 @@ def forgotPassword(request):
         try:
             user=User.objects.get(username=request.POST.get("username",''))
         except User.DoesNotExist:
-            return HttpResponse("error:username does not exist!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Username does not exist!'})
         emailAddress=user.email
         randomToken = get_random_string(length=10)
         while len(Token.objects.filter(token=randomToken))>0:
@@ -146,13 +134,13 @@ def resetPassword(request):
         try:
             token=Token.objects.get(token=request.POST.get("token",''))
         except Token.DoesNotExist:
-            return HttpResponse("error:incorrect token!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Incorrect token!'})
         if request.POST.get("password",'')=='':
-            return HttpResponse("error:Please enter the new password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please enter the new password!'})
         if request.POST.get("password2",'')=='':
-            return HttpResponse("error:Please repeat the new password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please repeat the new password!'})
         if request.POST.get("password",'')!=request.POST.get("password2",''):
-            return HttpResponse("error:the two passwords are not the same!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'The two passwords are not the same!'})
         token.user.set_password(request.POST.get("password",''))
         token.user.save()
         token.delete()
@@ -168,48 +156,41 @@ def resetPassword(request):
     
 def changePassword(request):
     if not request.user.is_authenticated:
-        return HttpResponse('error:please login first<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please login first'})
     if request.method == 'POST':
         if request.POST.get("currentPassword",'')=='':
-            return HttpResponse("error:Please enter the current password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please enter the current password!'})
         if request.POST.get("newPassword",'')=='':
-            return HttpResponse("error:Please enter the new password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please enter the new password!'})
         if request.POST.get("newPassword2",'')=='':
-            return HttpResponse("error:Please repeat the new password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please repeat the new password!'})
         if not request.user.check_password(request.POST.get("currentPassword",'')):
-            return HttpResponse("error:incorrect password!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Incorrect password!'})
         if request.POST.get("newPassword",'')!=request.POST.get("newPassword2",''):
-            return HttpResponse("error:the two new password are not the same!<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'The two new passwords are not the same!'})
         request.user.set_password(request.POST.get("newPassword",''))
         request.user.save()
-        return HttpResponse("The password is changed successfully, please login again<br>"+"""
-        <script>
-            function redir()
-            {
-                window.location='../';
-            }
-            setTimeout('redir()',1500);
-         </script>""")
+        return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'The password is changed successfully, please login again','jump':'main'})
     return render(request,'changePassword.html')
     
 def uploadPage(request):
     if not request.user.is_authenticated:
-        return HttpResponse('error:please login first<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please login first'})
     if request.method == 'POST':
         return uploadImage(request)
     numImage=len(Image.objects.filter(author=request.user))
     if numImage>=TOTAL_NUMBER_OF_AVAILABLE_IMAGE:
-        return HttpResponse("error:Number of images uploaded exceeds the limit.<br> "+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Number of images uploaded exceeds the limit.'})
     today_min = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
     today_max = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
     numImageToday=len(Image.objects.filter(author=request.user, time__range=(today_min, today_max)))
     if numImageToday>=MAXIMUM_UPLOAD_FREQUENCY:
-        return HttpResponse("error:Number of images uploaded exceeds the daily limit.<br> "+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Number of images uploaded exceeds the daily limit.'})
     return render(request,'uploadPage.html')
     
 def uploadImage(request):
     if not request.user.is_authenticated:
-        return HttpResponse('error:please login first<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please login first'})
     if request.method == 'POST':
             imgAuthor=request.user
             try:
@@ -224,10 +205,10 @@ def uploadImage(request):
             newImg.description = request.POST.get("description",'')
             newImg.category=request.POST.get("category",'')
             if request.POST.get("image",'none')=='':
-                return HttpResponse("Upload failed: no image is selected<br>"+scriptBack)
+                return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'no image is selected'})
             imgTags=request.POST.get("tags",'').split()
             if len(imgTags)>MAXIMUM_NUMBER_OF_TAGS:
-                return HttpResponse("Upload failed:  the number of tags per image is limited to 10<br>"+scriptBack)
+                return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'number of tags per image is limited to 10'})
             newImg.imageFile = request.FILES['image']
             newImg.time = datetime.datetime.now()
             newImg.numberOfView = 0
@@ -244,20 +225,20 @@ def uploadImage(request):
                 else:
                     newImg.tags.add(tag[0])
             newImg.save()
-            return HttpResponse("The image is uploaded successfully. <br><a href=''>upload another image</a><br><a href='../'>back to main page</a><br>")
-    return HttpResponse("Upload failed<br>"+scriptBack)
+            return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'The image is uploaded successfully.','jump':'main'})
+    return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Upload failed'})
     
 def delete(request, pk):
     if not request.user.is_authenticated:
-        return HttpResponse('error:please login first<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'Please login first'})
     try: 
         img=Image.objects.get(id=pk)
     except Image.DoesNotExist:
-        return HttpResponse('error:image does not exist!<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'image does not exist!'})
     if img.author!=request.user:
-        return HttpResponse('error:You are not the uploader of the image!<br>'+scriptBack)
+        return render(request,'messagePage.html',{'user':request.user,'title':'Error','message':'You are not the uploader of the image!'})
     img.delete()
-    return HttpResponse("Image is deleted successfully.<br>"+scriptBack)
+    return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'Image is deleted successfully.'})
 
 def download(request, pk):
     image=Image.objects.get(id=pk)
