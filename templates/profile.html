@@ -55,16 +55,17 @@
             {% if user == member %}
                 <form method="POST" action="" enctype='multipart/form-data' id="changeProfile">
                     {% csrf_token %}
-                    Display name: <br><input type='text' name='displayname' value={{member.memberInfo.displayname }}><br>
+                    Display name: <br><input type='text' name='displayname' value='{{member.memberInfo.displayname }}'><br>
                     Self description: <br><textarea rows="4" cols="50" name="selfDescription" form="changeProfile">{{member.memberInfo.selfDescription}}</textarea><br>
                     contact address: <input type='text' name='contactAddress' value={{member.email}}><br>
                     <input type="submit" value = "change profile information">
                 </form>
             {% else %}
+                About {{ member.memberInfo.displayname }}:<br>
                 <p>{{ member.memberInfo.selfDescription }}</p>
             {% endif %}
             <br>
-            Images of {{ member.memberInfo.displayname }}<br>
+            Images of {{ member.memberInfo.displayname }}:<br>
             {% if images == '' %}
             no image found<br>
             {% else %}

@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from .models import Invitation,MemberInfo,Token, Image,Tag
 from django.shortcuts import redirect
-from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -144,14 +143,7 @@ def resetPassword(request):
         token.user.set_password(request.POST.get("password",''))
         token.user.save()
         token.delete()
-        return HttpResponse("reset successfully<br>"+"""
-        <script>
-            function redir()
-            {
-                window.location='../';
-            }
-            setTimeout('redir()',1500);
-         </script>""")
+        return render(request,'messagePage.html',{'user':request.user,'title':'Success','message':'reset successfully','jump':'main'})
     return render(request,'resetPassword.html')
     
 def changePassword(request):
